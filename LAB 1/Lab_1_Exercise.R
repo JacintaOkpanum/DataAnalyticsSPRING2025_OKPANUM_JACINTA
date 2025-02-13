@@ -42,34 +42,32 @@ qqplot(rt(250, df=5),EPI.new, xlab = "Q-Q plot for t dsn")
 qqline(EPI.new)
 
 # Exercise 2a 
-EPI.old
-NAs_old <- is.na(EPI.old) # records true values if the value is NA
-EPI.old.noNAs <- EPI.old[!NAs_old] # filters out NA values, New array
+ECO.old
+NAs_old <- is.na(ECO.old) # records true values if the value is NA
+ECO.old.noNAs <- ECO.old[!NAs_old] # filters out NA values, New array
 
 # Data Exploration
-summary(EPI.old)
-fivenum(EPI.old,na.rm=TRUE)
-stem(EPI.old)
-hist(EPI.old)
-hist(EPI.old, seq(10., 80., 1.0), prob=TRUE)
-line(density(EPI.old,na.rm=TRUE,bw=1))
-rug(EPI.old)
-boxplot(EPI.new, EPI.old, names = c("EPI.new", "EPI.old"), main = "Boxplot of EPI.new and EPI.old", ylab = "Values", col = c("lightblue", "pink"))
+summary(ECO.old.noNAs)
+fivenum(ECO.old.noNAs,na.rm=TRUE)
+stem(ECO.old.noNAs)
+hist(ECO.old.noNAs)
+hist(ECO.old.noNAs, seq(10., 100., 1.0), prob=TRUE)
+line(density(ECO.old.noNAs,na.rm=TRUE,bw=1))
+rug(ECO.old.noNAs)
+boxplot(PAR.new, ECO.old.noNAs, names = c("PAR.new", "ECO.old"), main = "Boxplot of PAR.new and ECO.old", ylab = "Values", col = c("lightblue", "pink"))
 
-line(density(EPI.old,na.rm=TRUE,bw="SJ"))
-X<-seq(10,80,1)
-q<-dnorm(X,mean=41, sd=4,log = FALSE)
+line(density(ECO.old.noNAs,na.rm=TRUE,bw="SJ"))
+X<-seq(10,100,1)
+q<-dnorm(X,mean=50, sd=10,log = FALSE)
 lines(X,q)
-lines(X,.4*q)
-q<-dnorm(X,mean=62, sd=4,log=FALSE)
-lines(X,.12*q)
+lines(X,1.55*q)
 
 # Cumulative density function 
-plot(ecdf(EPI.old), do.points=FALSE, verticals = TRUE)
+plot(ecdf(ECO.old.noNAs), do.points=FALSE, verticals = TRUE)
 
 #Quantile 
-qqnorm(EPI.old);qqline(EPI.old)
-qqplot(rnorm(250), EPI.old, xlab="Q-Q plot for norm dsn")
-qqline(EPI.old)
-qqplot(rt(250, df=5),EPI.old, xlab = "Q-Q plot for t dsn")
-qqline(EPI.old)
+qqnorm(ECO.old.noNAs);qqline(ECO.old.noNAs)
+qqplot(rnorm(250), ECO.old.noNAs, xlab="Q-Q plot for norm dsn")
+qqline(ECO.old.noNAs)
+qqplot(rt(250, df=5),ECO.old.noNAs, xlab = "Q-Q plot for t dsn")
+qqline(ECO.old.noNAs)
