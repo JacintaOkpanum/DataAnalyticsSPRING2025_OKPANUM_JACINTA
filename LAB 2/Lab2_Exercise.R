@@ -6,6 +6,8 @@
 library("ggplot2")
 library("readr")
 
+NY_House_Dataset <- read_csv("C:/Users/jacin/OneDrive/Desktop/DATA ANALYTICS 2025/NY-House-Dataset.csv")
+View(NY_House_Dataset)
 dataset <- NY_House_Dataset
 View(dataset)
 attach(dataset)
@@ -109,5 +111,24 @@ plot_model <- function(model, data, var_name, model_name) {
 # Call function for each model (PROPERTYSQFT is the most significant variable)
 plot_model(lmod_11, dataset, "PROPERTYSQFT", "lmod_11")
 plot_model(lmod_22, dataset, "PROPERTYSQFT", "lmod_22")
-plot_model(lmod_33, dataset, "BEDS", "lmod_33")  
 
+
+# Repeating the above for BEDS as the sig.v 
+
+# 1. Scatter plot of BEDS vs log10(PRICE) with best-fit regression line
+ggplot(dataset, aes(x = BEDS, y = log10(PRICE))) +
+  geom_point(alpha = 0.5, color = "blue") +  # Scatter plot points
+  stat_smooth(method = "lm", col = "red", se = FALSE) +  # Best fit line
+  labs(title = "Regression: BEDS vs log10(PRICE) - Model lmod33",
+       x = "Number of Beds", y = "log10(PRICE)") +
+  theme_minimal()
+
+# 2. Residuals vs Fitted Values plot
+residuals_data <- data.frame(Fitted = fitted(lmod_33), Residuals = resid(lmod_33))
+
+ggplot(residuals_data, aes(x = Fitted, y = Residuals)) +
+  geom_point(alpha = 0.5, color = "darkgreen") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(title = "Residuals vs Fitted - Model lmod_33",
+       x = "Fitted Values", y = "Residuals") +
+  theme_minimal()
