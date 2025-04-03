@@ -6,7 +6,7 @@ library(caret)      # For confusion matrix
 library(dplyr)      # For data manipulation
 library(caret)
 library(ggfortify)
-
+library(e1071)
 library(readr)
 wine <- read_csv("C:/Users/jacin/OneDrive/Desktop/DATA ANALYTICS 2025/wine.data")
 
@@ -76,12 +76,12 @@ summary(pca_reduced)
 
 ############# kNN Classification ###########
 
-# sample create list (70% of 4176) 
+# sample create list  
 n = 177
 s_data <- sample(n,n*.7)
 
 wine_scaled_df <- as.data.frame(wine_scaled)  # Convert matrix to data frame
-wine_scaled_df$class <- wine$class.wine       # Add class column
+wine_scaled_df$class <- as.factor(wine$class.wine)       # Add class column
 
 
 ## create train & test sets based on sampled indexes 
@@ -96,20 +96,77 @@ k = round(sqrt(n))
 # Train & Evaluate knn #
 ########################
 
-# Model 1: Original Dataset
+################### Model 1: Original Dataset #####################
 
 ## train model & predict in one step ('knn' function from 'class' library)
-knn.predicted <- knn(train = dataset.train, test = dataset.test, cl = wine$class.wine[s_data,], k = 13)
+knn.predicted <- knn(train = dataset.train, test = dataset.test, cl = dataset.train$class, k = 13)
 
 # create contingency table/ confusion matrix 
-contingency.table <- table(knn.predicted, dataset.test$age.group, dnn=list('predicted','actual'))
+contingency.table <- table(knn.predicted, dataset.test$class, dnn=list('predicted','actual'))
 
 contingency.table
 
 # calculate classification accuracy
-sum(diag(contingency.table))/length(dataset.test$age.group)
+sum(diag(contingency.table))/length(dataset.test$class)
 
 
+########## Model 2:  using the data projected into the first 3 PCs #################
+
+# Convert PCA scores to a dataframe
+pca_data <- as.data.frame(pca_reduced$x)  # Extract transformed data
+
+# Keep only the first 3 PCs
+pca_knn_data <- pca_data[, 1:3]
+
+# Add class labels (wine type)
+pca_knn_data$class <- as.factor(wine$class.wine)  # Ensure it's a factor for classification
+
+## create train & test sets based on sampled indexes 
+dataset.train <- pca_knn_data[s_data,]
+
+dataset.test <- pca_knn_data[-s_data,]
+
+## train model & predict in one step ('knn' function from 'class' library)
+knn.predicted <- knn(train = dataset.train, test = dataset.test, cl = dataset.train$class, k = 13)
+
+# create contingency table/ confusion matrix 
+contingency.table <- table(knn.predicted, dataset.test$class, dnn=list('predicted','actual'))
+
+contingency.table
+
+# calculate classification accuracy
+sum(diag(contingency.table))/length(dataset.test$class)
+
+
+############### Precision/ Recall/ F1 score Metrics ##################################
+
+# Initialize vectors to store metrics
+precision <- c()
+recall <- c()
+f1_score <- c()
+
+# Loop over each class
+classes <- colnames(contingency.table)
+
+for (class in classes) {
+  TP <- contingency.table[class, class]  # True Positives
+  FP <- sum(contingency.table[class, ]) - TP  # False Positives
+  FN <- sum(contingency.table[, class]) - TP  # False Negatives
+  
+  # Compute metrics
+  prec <- TP / (TP + FP)  # Precision
+  rec <- TP / (TP + FN)  # Recall
+  f1 <- 2 * (prec * rec) / (prec + rec)  # F1 Score
+  
+  # Store values
+  precision <- c(precision, prec)
+  recall <- c(recall, rec)
+  f1_score <- c(f1_score, f1)
+}
+
+# Create a summary data frame
+metrics_df <- data.frame(Class = classes, Precision = precision, Recall = recall, F1_Score = f1_score)
+print(metrics_df)
 
 
 
